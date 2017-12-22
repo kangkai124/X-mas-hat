@@ -4,10 +4,10 @@
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width,maximum-scale=1.0,minimum-scale=1.0'>
   <meta http-equiv='X-UA-Compatible' content='ie=edge'>
-  <title>今年圣诞不收礼, 只送一顶帽子</title>
+  <title>头像还没有圣诞帽，out了</title>
   <style>
     body {
-      font-size: 28px;
+      font-size: 20px;
       text-align: center;
     }
     label {
@@ -47,10 +47,10 @@
 
     }
     button {
-      font-size: 25px;
+      font-size: 20px;
       color: #fff;
       width: 15rem;
-      height: 4rem;
+      height: 2rem;
       background: #8fd16f;
       border: 0;
       border-radius: 1rem;
@@ -69,14 +69,19 @@
     <canvas id='cvs'></canvas>
   </div>
   <div class='footer'>
-    <p id='tip' style='opacity: 0'>点击帽子调整位置和大小</p>
-    <button id='change' onClick='changeHat()' style='display: none;'>换 一 顶</button>
+    <div id='tip' style='opacity: 0'>
+      <p>点击帽子调整位置和大小</p>
+      <p>选中一个帽子，进行“换一顶”和“移除”</p>
+    </div>
+
     <button id='add' onClick='addHat()' style='display: none;'>再 来 一 顶</button>
+    <button id='change' onClick='changeHat()' style='display: none;'>换 一 顶</button>
+    <button id='remove' onClick='removeHat()' style='display: none;'>移 除</button>
     <button id='exportBtn' onClick='exportFunc()'>生成头像</button>
     <!-- <a onClick='reUpload()'>重来</a> -->
   </div>
 
-  <label>beta2.0版 -- 💻  with ❤️  by <a href='https://github.com/lqs469/X-mas-hat'>lqs469</a></label>
+  <label>beta3.0版 -- 💻  with ❤️  by <a href='https://github.com/lqs469/X-mas-hat'>lqs469</a> and <a href='https://github.com/kangkai124/X-mas-hat'>kangkai124</a></label>
   <div style='display: none'>
     <img id='img' src='' alt='' />
     <img class='hide' id='hat0' src='./hat0.png' />
@@ -91,6 +96,10 @@
     <img class='hide' id='hat9' src='./hat9.png' />
   </div>
 
+  <a href='https://github.com/kangkai124/X-mas-hat'>
+            <img style="position:absolute;top: 0;right: 0;border: 0" src='https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67' alt='Fork me on GitHub' data-canonical-src='https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png' />
+          </a>
+
 <script src="https://cdn.bootcss.com/fabric.js/2.0.0-rc.3/fabric.min.js"></script>
 <script>
   var cvs = document.getElementById('cvs')
@@ -100,7 +109,7 @@
   // var imgContainer = document.getElementById('img-container')
   var hat = 'hat6'
   var canvasFabric
-  var hatInstance
+  var flag = 0
 
   function viewer () {
     var file = document.getElementById('upload').files[0]
@@ -137,32 +146,47 @@
     document.getElementById('upload').style.display = 'none'
     document.getElementById('change').style.display = 'block'
     document.getElementById('add').style.display = 'block'
+    document.getElementById('remove').style.display = 'block'
     document.getElementById('exportBtn').style.display = 'block'
     document.getElementById('tip').style.opacity = 1
   }
 
   function changeHat () {
-    document.getElementById(hat).style.display = 'none'
-    var hats = document.getElementsByClassName('hide')
-    hat = 'hat' + (+hat.replace('hat', '') + 1) % hats.length
-    var hatImage = document.getElementById(hat)
-    hatImage.style.display = 'block'
-    if (hatInstance) {
-      canvasFabric.remove(hatInstance)
+    flag++
+    var activeHat = canvasFabric.getActiveObject()
+    if (flag == 1 || activeHat) {
+      document.getElementById(hat).style.display = 'none'
+      var hats = document.getElementsByClassName('hide')
+      hat = 'hat' + (+hat.replace('hat', '') + 1) % hats.length
+      var hatImage = document.getElementById(hat)
+      hatImage.style.display = 'block'
+      if (activeHat) {
+        canvasFabric.remove(activeHat)
+      }
+
+
+      var hatTop = 0
+      var hatLeft = 40
+
+      if (activeHat) {
+        hatTop = activeHat.top
+        hatLeft = activeHat.left
+      }
+
+      var hatInstance = new fabric.Image(hatImage, {
+        top: hatTop,
+        left: hatLeft,
+        scaleX: 80 / hatImage.width,
+        scaleY: 80 / hatImage.height,
+        cornerColor: '#0b3a42',
+        cornerStrokeColor: '#fff',
+        cornerStyle: 'circle',
+        transparentCorners: false,
+        rotatingPointOffset: 30
+      })
+      canvasFabric.add(hatInstance)
     }
 
-    hatInstance = new fabric.Image(hatImage, {
-      top: 0,
-      left: 40,
-      scaleX: 80 / hatImage.width,
-      scaleY: 80 / hatImage.height,
-      cornerColor: '#0b3a42',
-      cornerStrokeColor: '#fff',
-      cornerStyle: 'circle',
-      transparentCorners: false,
-      rotatingPointOffset: 30
-    })
-    canvasFabric.add(hatInstance)
   }
 
   function addHat () {
@@ -184,11 +208,19 @@
     canvasFabric.add(newHatInstance)
   }
 
+  function removeHat() {
+    var activeHat = canvasFabric.getActiveObject()
+    if (activeHat) {
+      canvasFabric.remove(activeHat)
+    }
+  }
+
   function exportFunc () {
     document.getElementById('exportBtn').style.display = 'none'
     document.getElementById('tip').innerHTML = '长按图片保存或分享'
     document.getElementById('change').style.display = 'none'
     document.getElementById('add').style.display = 'none'
+    document.getElementById('remove').style.display = 'none'
     cvs.style.display = 'none'
     exportImage.style.display = 'block'
     exportImage.src = canvasFabric.toDataURL({ width: 200, height: 200 })
