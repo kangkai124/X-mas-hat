@@ -71,6 +71,7 @@
   <div class='footer'>
     <p id='tip' style='opacity: 0'>点击帽子调整位置和大小</p>
     <button id='change' onClick='changeHat()' style='display: none;'>换 一 顶</button>
+    <button id='add' onClick='addHat()' style='display: none;'>再 来 一 顶</button>
     <button id='exportBtn' onClick='exportFunc()'>生成头像</button>
     <!-- <a onClick='reUpload()'>重来</a> -->
   </div>
@@ -96,13 +97,13 @@
   var ctx = cvs.getContext('2d')
   var exportImage = document.getElementById('export')
   var img = document.getElementById('img')
+  // var imgContainer = document.getElementById('img-container')
   var hat = 'hat6'
   var canvasFabric
   var hatInstance
 
   function viewer () {
     var file = document.getElementById('upload').files[0]
-    console.log(file)
     var reader = new FileReader()
 
     if (file) {
@@ -135,6 +136,7 @@
     document.getElementById('uploadText').style.display = 'none'
     document.getElementById('upload').style.display = 'none'
     document.getElementById('change').style.display = 'block'
+    document.getElementById('add').style.display = 'block'
     document.getElementById('exportBtn').style.display = 'block'
     document.getElementById('tip').style.opacity = 1
   }
@@ -161,6 +163,25 @@
       rotatingPointOffset: 30
     })
     canvasFabric.add(hatInstance)
+  }
+
+  function addHat () {
+    // var img = document.createElement('img')
+    // img.src = './' + hat + '.png'
+    // imgContainer.appendChild()
+    var hatImage = document.getElementById(hat)
+    var newHatInstance = new fabric.Image(hatImage, {
+      top: 0,
+      left: 40,
+      scaleX: 80 / hatImage.width,
+      scaleY: 80 / hatImage.height,
+      cornerColor: '#0b3a42',
+      cornerStrokeColor: '#fff',
+      cornerStyle: 'circle',
+      transparentCorners: false,
+      rotatingPointOffset: 30
+    })
+    canvasFabric.add(newHatInstance)
   }
 
   function exportFunc () {
